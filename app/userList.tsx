@@ -1,4 +1,4 @@
-import { Link } from "expo-router";
+import { Link, Stack } from "expo-router";
 import React, { useMemo, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { Avatar, Card } from "react-native-paper";
@@ -50,6 +50,8 @@ const UserList = () => {
   };
   return (
     <>
+      <Stack.Screen options={{ headerShown: false }} />
+
       <Appbar
         isSearchActive={isSearchActive}
         searchQuery={searchQuery}
@@ -68,7 +70,11 @@ const UserList = () => {
             <Link
               href={{
                 pathname: "/profile",
-                params: { userName: user.name },
+                params: {
+                  userName: user.name,
+                  img: user.photo_url,
+                  email: user.email,
+                },
               }}
               push
               asChild
@@ -83,8 +89,12 @@ const UserList = () => {
                     />
 
                     <View style={styles.userInfoContainer}>
-                      <Text style={styles.userName}>{user.name}</Text>
-                      <Text style={styles.userEmail}>{user.email}</Text>
+                      <Text style={styles.userName} numberOfLines={1}>
+                        {user.name}
+                      </Text>
+                      <Text style={styles.userEmail} numberOfLines={1}>
+                        {user.email}
+                      </Text>
                     </View>
 
                     <View style={styles.cardAside}>

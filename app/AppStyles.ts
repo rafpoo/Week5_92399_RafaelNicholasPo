@@ -4,14 +4,17 @@ const styles = StyleSheet.create({
   listContent: {
     paddingHorizontal: 14,
     paddingVertical: 12,
-    gap: 50,
+    gap: 12,
     backgroundColor: "#f5f7fb",
-    alignItems: "center",
+    alignItems: "stretch",
   },
   userCard: {
     borderRadius: 16,
     backgroundColor: "#ffffff",
-    width: "50%",
+    width: "100%",
+    maxWidth: 520,
+    alignSelf: "center",
+    paddingVertical: 5,
   },
   cardContentRow: {
     flexDirection: "row",
@@ -20,6 +23,7 @@ const styles = StyleSheet.create({
   },
   userInfoContainer: {
     flex: 1,
+    minWidth: 0,
   },
   avatar: {
     backgroundColor: "#e8eef9",
@@ -32,14 +36,16 @@ const styles = StyleSheet.create({
   userEmail: {
     marginTop: 2,
     color: "#53627c",
+    flexShrink: 1,
   },
   cardAside: {
-    width: 56,
-    height: 56,
+    width: 52,
+    height: 52,
     borderRadius: 12,
     backgroundColor: "#eef3ff",
     alignItems: "center",
     justifyContent: "center",
+    flexShrink: 0,
   },
   cardAsideLabel: {
     fontSize: 10,
