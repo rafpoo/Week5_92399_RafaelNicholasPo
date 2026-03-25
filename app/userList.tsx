@@ -1,7 +1,13 @@
 import { Link, Stack } from "expo-router";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { Avatar, Card } from "react-native-paper";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withTiming,
+} from "react-native-reanimated";
 import styles from "./AppStyles";
 import Appbar from "./components/Appbar";
 import userData from "./data/data.json";
@@ -15,6 +21,78 @@ type User = {
 
 const users = userData as User[];
 
+// ─── Animated card component ───────────────────────────────────────────────
+type AnimatedUserCardProps = {
+  user: User;
+  index: number;
+};
+
+const AnimatedUserCard: React.FC<AnimatedUserCardProps> = ({ user, index }) => {
+  const DELAY = index * 80; // staggered: each card 80 ms later
+  const DURATION = 400;
+
+  const opacity = useSharedValue(0);
+  const translateY = useSharedValue(40);
+
+  useEffect(() => {
+    opacity.value = withDelay(DELAY, withTiming(1, { duration: DURATION }));
+    translateY.value = withDelay(DELAY, withTiming(0, { duration: DURATION }));
+  }, []);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+    transform: [{ translateY: translateY.value }],
+  }));
+
+  return (
+    <Animated.View style={animatedStyle}>
+      <Card mode="elevated" style={styles.userCard}>
+        <Link
+          href={{
+            pathname: "/profile",
+            params: {
+              userName: user.name,
+              img: user.photo_url,
+              email: user.email,
+            },
+          }}
+          push
+          asChild
+        >
+          <TouchableOpacity style={styles.userCard}>
+            <Card.Content>
+              <View style={styles.cardContentRow}>
+                <Avatar.Image
+                  size={64}
+                  source={{ uri: user.photo_url }}
+                  style={styles.avatar}
+                />
+
+                <View style={styles.userInfoContainer}>
+                  <Text style={styles.userName} numberOfLines={1}>
+                    {user.name}
+                  </Text>
+                  <Text style={styles.userEmail} numberOfLines={1}>
+                    {user.email}
+                  </Text>
+                </View>
+
+                <View style={styles.cardAside}>
+                  <Text style={styles.cardAsideLabel}>USER</Text>
+                  <Text style={styles.cardAsideValue}>
+                    {String(index + 1).padStart(2, "0")}
+                  </Text>
+                </View>
+              </View>
+            </Card.Content>
+          </TouchableOpacity>
+        </Link>
+      </Card>
+    </Animated.View>
+  );
+};
+
+// ─── Main screen ───────────────────────────────────────────────────────────
 const UserList = () => {
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -48,6 +126,7 @@ const UserList = () => {
   const handleCloseModal = () => {
     setSelectedUser(null);
   };
+
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
@@ -62,52 +141,11 @@ const UserList = () => {
 
       <ScrollView contentContainerStyle={styles.listContent}>
         {filteredUsers.map((user, index) => (
-          <Card
+          <AnimatedUserCard
             key={`${user.email}-${index}`}
-            mode="elevated"
-            style={styles.userCard}
-          >
-            <Link
-              href={{
-                pathname: "/profile",
-                params: {
-                  userName: user.name,
-                  img: user.photo_url,
-                  email: user.email,
-                },
-              }}
-              push
-              asChild
-            >
-              <TouchableOpacity style={styles.userCard}>
-                <Card.Content>
-                  <View style={styles.cardContentRow}>
-                    <Avatar.Image
-                      size={64}
-                      source={{ uri: user.photo_url }}
-                      style={styles.avatar}
-                    />
-
-                    <View style={styles.userInfoContainer}>
-                      <Text style={styles.userName} numberOfLines={1}>
-                        {user.name}
-                      </Text>
-                      <Text style={styles.userEmail} numberOfLines={1}>
-                        {user.email}
-                      </Text>
-                    </View>
-
-                    <View style={styles.cardAside}>
-                      <Text style={styles.cardAsideLabel}>USER</Text>
-                      <Text style={styles.cardAsideValue}>
-                        {String(index + 1).padStart(2, "0")}
-                      </Text>
-                    </View>
-                  </View>
-                </Card.Content>
-              </TouchableOpacity>
-            </Link>
-          </Card>
+            user={user}
+            index={index}
+          />
         ))}
 
         {filteredUsers.length === 0 && (
